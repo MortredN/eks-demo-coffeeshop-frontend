@@ -11,25 +11,46 @@ import CartPage from './routes/cart'
 import ProductDetailPage from './routes/product/subname'
 import OrdersPage from './routes/order'
 import OrderDetailPage from './routes/order/id'
+import AuthProvider from './contexts/AuthContext'
+import CartProvider from './contexts/CartContext'
+import AuthRoute from './components/AuthRoute'
+import PrivateRoute from './components/PrivateRoute'
 
-// TODO: Handle auth redirect
 const router = createBrowserRouter([
   {
     path: '/',
-    element: <RootLayout />,
+    element: (
+      <AuthProvider>
+        <CartProvider>
+          <RootLayout />
+        </CartProvider>
+      </AuthProvider>
+    ),
     errorElement: (
-      <RootLayout>
-        <ErrorPage />
-      </RootLayout>
+      <AuthProvider>
+        <RootLayout>
+          <ErrorPage />
+        </RootLayout>
+      </AuthProvider>
     ),
     children: [
       { path: '', element: <HomePage /> },
-      { path: '/login', element: <LoginPage /> },
-      { path: '/register', element: <RegisterPage /> },
       { path: '/product/:product-subname', element: <ProductDetailPage /> },
       { path: '/cart', element: <CartPage /> },
-      { path: '/order', element: <OrdersPage /> },
-      { path: '/order/:order-id', element: <OrderDetailPage /> }
+      {
+        element: <AuthRoute />,
+        children: [
+          { path: '/login', element: <LoginPage /> },
+          { path: '/register', element: <RegisterPage /> }
+        ]
+      },
+      {
+        element: <PrivateRoute />,
+        children: [
+          { path: '/order', element: <OrdersPage /> },
+          { path: '/order/:order-id', element: <OrderDetailPage /> }
+        ]
+      }
     ]
   }
 ])

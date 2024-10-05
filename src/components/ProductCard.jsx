@@ -1,17 +1,9 @@
 import { Link } from 'react-router-dom'
+import { useCartContext } from '../contexts/CartContext'
 
-// TODO: Replace with product from backend
-const product = {
-  subname: 'roasti-brazilian-yellow-bourbon',
-  name: 'Roasti - Brazilian Yellow Bourbon',
-  brand: 'Roasti Coffee',
-  price: 21.01,
-  image: 'https://philsebastian.com/cdn/shop/files/thestandard_2000x.jpg?v=1686780149',
-  format: 'Whole Bean',
-  quantity: '300gr'
-}
+const ProductCard = ({ product }) => {
+  const cartContext = useCartContext()
 
-const ProductCard = () => {
   return (
     <div className="flex flex-col items-center">
       <div className="flex flex-col items-center group">
@@ -24,11 +16,10 @@ const ProductCard = () => {
         <p className="text-xs text-gray-600 mt-2.5">{product.brand}</p>
         <div className="flex flex-col mx-auto">
           <Link to={`/product/${product.subname}`} className="mt-0.5">
-            <h2 className="text-sm font-medium">{product.name}</h2>
+            <h2 className=" text-center font-medium group-hover:underline">{product.name}</h2>
           </Link>
-          <div className="w-full h-px bg-gray-800 opacity-0 group-hover:opacity-100 transition-opacity -mt-0.5" />
         </div>
-        <h3 className="mt-1">${product.price.toFixed(2)} CAD</h3>
+        <h3 className="mt-1">${Number(product.price).toFixed(2)} CAD</h3>
         <span className="text-xs mt-1">
           <b className="font-medium inline">Quantity: </b>
           <p className="inline">{product.quantity}</p>
@@ -39,6 +30,7 @@ const ProductCard = () => {
       </div>
       <button
         type="button"
+        onClick={() => cartContext.onAddToCart(product)}
         className="text-sm border border-gray-300 hover:border-gray-500 py-1 px-2 mt-2 transition-colors"
       >
         Quick Add

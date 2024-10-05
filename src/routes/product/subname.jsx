@@ -1,17 +1,26 @@
-import { useState } from 'react'
-
-// TODO: Replace with product from backend
-const product = {
-  subname: 'roasti-brazilian-yellow-bourbon',
-  name: 'Roasti - Brazilian Yellow Bourbon',
-  brand: 'Roasti Coffee',
-  price: 21.01,
-  image: 'https://philsebastian.com/cdn/shop/files/thestandard_2000x.jpg?v=1686780149',
-  format: 'Whole Bean',
-  quantity: '300gr'
-}
+import { useEffect, useState } from 'react'
+import { useParams } from 'react-router-dom'
+import { useCartContext } from '../../contexts/CartContext'
 
 const ProductDetailPage = () => {
+  const params = useParams()
+  const [product, setProduct] = useState([])
+  useEffect(() => {
+    fetch(`${import.meta.env.VITE_API_SHOPPING_URL}/product/${params['product-subname']}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    })
+      .then((res) => {
+        return res.json()
+      })
+      .then((data) => {
+        setProduct(data?.product ?? [])
+      })
+  }, [])
+
+  const cartContext = useCartContext()
   const [quantity, setQuantity] = useState(1)
 
   const enforceMinMax = (e) => {
@@ -40,7 +49,7 @@ const ProductDetailPage = () => {
       <div className="w-full md:w-2/3 flex flex-col items-start">
         <p className="text-sm text-gray-600">{product.brand}</p>
         <h2 className="text-3xl font-bold mt-2">{product.name}</h2>
-        <h3 className="text-3xl mt-6">${product.price.toFixed(2)} CAD</h3>
+        <h3 className="text-3xl mt-6">${Number(product.price).toFixed(2)} CAD</h3>
         <div className="mt-8">
           <div className="inline-flex items-center gap-x-1.5 mr-4">
             <img src="/images/quantity.webp" className="size-8" />
@@ -87,6 +96,7 @@ const ProductDetailPage = () => {
         </div>
         <button
           type="button"
+          onClick={() => cartContext.onAddToCart(product, quantity)}
           className="border border-gray-500 hover:border-gray-800 py-2 px-4 mt-2 w-full transition-colors"
         >
           Add to Cart
