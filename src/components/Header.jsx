@@ -13,6 +13,11 @@ const Header = () => {
           <h1 className="text-lg font-semibold">Coffee Shop</h1>
         </Link>
         <ul className="text-xs uppercase font-medium flex items-center divide-x divide-white/50">
+          {auth?.token && (
+            <li className="px-4">
+              Hello, {auth?.user?.name}
+            </li>
+          )}
           <li className="px-4">
             <Link to="/cart" className="relative">
               <img src="/images/cart.svg" className="size-6" />

@@ -15,5 +15,8 @@ WORKDIR /usr/share/nginx/html
 COPY ./nginx.conf /etc/nginx
 COPY --from=builder /app/dist ./
 
+COPY env.sh /docker-entrypoint.d/env.sh
+RUN chmod +x /docker-entrypoint.d/env.sh
+
 EXPOSE 8080
 CMD ["nginx", "-g", "daemon off;"]

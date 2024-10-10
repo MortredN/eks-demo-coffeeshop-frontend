@@ -20,7 +20,7 @@ const ProductCard = ({ product }) => {
           </Link>
         </div>
         <h3 className="mt-1">${Number(product.price).toFixed(2)} CAD</h3>
-        <span className="text-xs mt-1">
+        <span className="text-xs text-center mt-1">
           <b className="font-medium inline">Quantity: </b>
           <p className="inline">{product.quantity}</p>
           {' / '}
