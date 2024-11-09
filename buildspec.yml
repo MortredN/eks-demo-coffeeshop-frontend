@@ -1,0 +1,36 @@
+version: 0.2
+
+phases:
+  install:
+    commands:
+      - echo "Installing kubectl..."
+      - curl -O https://s3.us-west-2.amazonaws.com/amazon-eks/1.31.0/2024-09-12/bin/linux/arm64/kubectl
+      - chmod +x ./kubectl
+      - export PATH=$PWD/:$PATH
+  pre_build:
+    commands:
+      - TAG="$(date +%Y-%m-%d.%H.%M.%S).$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | head -c 8)"
+      - echo "Updating image tag in k8s deployment..."
+      - sed -i 's@CONTAINER_IMAGE@'"$ECR_REPOSITORY_URI:$TAG"'@' manifests/deployment.yaml
+      - echo "Logging in to ECR registry..."
+      - $(aws ecr get-login --no-include-email)
+  build:
+    commands:
+      - echo "Building Docker image at `date`..."
+      - docker build --tag $ECR_REPOSITORY_URI:$TAG .
+      - echo "Build complete at `date`"
+  post_build:
+    commands:
+      - echo "Pushing Docker image at `date`..."
+      - docker push $ECR_REPOSITORY_URI:$TAG
+      - echo "Updating kubeconfig with your EKS Cluster..."
+      - CREDENTIALS=$(aws sts assume-role --role-arn $EKS_ROLE_ARN --role-session-name codebuild-kubectl --duration-seconds 900)
+      - export AWS_ACCESS_KEY_ID="$(echo ${CREDENTIALS} | jq -r '.Credentials.AccessKeyId')"
+      - export AWS_SECRET_ACCESS_KEY="$(echo ${CREDENTIALS} | jq -r '.Credentials.SecretAccessKey')"
+      - export AWS_SESSION_TOKEN="$(echo ${CREDENTIALS} | jq -r '.Credentials.SessionToken')"
+      - export AWS_EXPIRATION=$(echo ${CREDENTIALS} | jq -r '.Credentials.Expiration')
+      - export KUBECONFIG=$HOME/.kube/config
+      - aws eks update-kubeconfig --name $EKS_CLUSTER_NAME
+      - echo "Applying changes to kube manifests..."
+      - kubectl apply -f manifests/deployment.yaml
+      - echo "Done!"
