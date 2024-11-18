@@ -7,7 +7,7 @@ const Header = () => {
   const { cart } = useCartContext()
 
   return (
-    <nav className="bg-[#2b405b] text-white">
+    <nav className="bg-[#212121] text-white">
       <div className="max-w-screen-2xl mx-auto flex items-center justify-between py-4 px-4 md:px-8">
         <Link to="/">
           <h1 className="text-lg font-semibold">Coffee Shop</h1>
